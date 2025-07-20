@@ -23,12 +23,12 @@ internal record GameLogRequest
     /// <summary>
     /// Game rating in the Backloggd system (usually from 0 to 10).
     /// </summary>
-    public required int Rating { get; init; }
+    public int? Rating { get; init; }
 
     /// <summary>
     /// Playthrough status
     /// </summary>
-    public required string Status { get; init; }
+    public string? Status { get; init; }
 
     /// <summary>
     /// Platform ID where the game was played. Can be null if not specified.
@@ -70,10 +70,14 @@ internal record GameLogRequest
     {
         ArgumentNullException.ThrowIfNull(csvGame);
 
-        var platformId = Platforms.GetId(csvGame.Platform);
-        var status = GameStatuses.IsValidStatus(csvGame.Status)
-                         ? csvGame.Status
-                         : GameStatuses.Completed;
+        var platformId = string.IsNullOrEmpty(csvGame.Platform)
+                             ? null
+                             : Platforms.GetId(csvGame.Platform);
+        var status = string.IsNullOrEmpty(csvGame.Status)
+                         ? GameStatuses.Completed
+                         : GameStatuses.IsValidStatus(csvGame.Status)
+                             ? csvGame.Status
+                             : GameStatuses.Completed;
 
         return new GameLogRequest
         {

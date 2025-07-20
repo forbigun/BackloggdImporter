@@ -5,6 +5,7 @@ using System.Net.Http;
 using System.Net.Http.Json;
 using System.Threading.Tasks;
 using BackloggdImporter.Constants;
+using BackloggdImporter.Factories;
 using BackloggdImporter.Models.Backloggd;
 using BackloggdImporter.Models.Settings;
 
@@ -36,8 +37,7 @@ internal class BacklogService(Config config) : IDisposable
 
         return releaseYear.HasValue
                    ? searchResponse?.Suggestions
-                       .FirstOrDefault(s => !s.Data.Year.HasValue || s.Data.Year == releaseYear)
-                       ?.Data.Id
+                       .FirstOrDefault(s => s.Data.Year == releaseYear)?.Data.Id
                    : searchResponse?.Suggestions.FirstOrDefault()?.Data.Id;
     }
 
@@ -81,7 +81,7 @@ internal class BacklogService(Config config) : IDisposable
             ["game_id"] = request.GameId.ToString(),
             ["playthroughs[0][id]"] = BackloggdConstants.DefaultNewLogId.ToString(),
             ["playthroughs[0][title]"] = $"{request.GameName} Log",
-            ["playthroughs[0][rating]"] = request.Rating.ToString(),
+            ["playthroughs[0][rating]"] = request.Rating?.ToString(),
             ["playthroughs[0][review]"] = request.Review,
             ["playthroughs[0][platform]"] = request.PlatformId ?? string.Empty,
             ["playthroughs[0][sync_sessions]"] = "true",

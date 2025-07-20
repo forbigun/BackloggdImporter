@@ -15,22 +15,23 @@ internal class CsvEntryWriter : IDisposable
 {
     private readonly CsvWriter _csvWriter;
 
-    private CsvEntryWriter(string filePath)
+    public bool HasWrittenEntries { get; private set; }
+
+    public CsvEntryWriter(string filePath)
     {
         var csvConfig = new CsvConfiguration(CultureInfo.InvariantCulture)
         {
             HasHeaderRecord = false,
         };
 
-        var streamWriter = new StreamWriter(filePath, append: false);
+        var streamWriter = new StreamWriter(filePath, append: false)
+        {
+            AutoFlush = true
+        };
+        
         _csvWriter = new CsvWriter(streamWriter, csvConfig);
         _csvWriter.WriteHeader<CsvGameEntry>();
         _csvWriter.NextRecord();
-    }
-
-    public static CsvEntryWriter CreateInstance(string filePath)
-    {
-        return new CsvEntryWriter(filePath);
     }
 
     /// <summary>
@@ -41,6 +42,11 @@ internal class CsvEntryWriter : IDisposable
     {
         _csvWriter.WriteRecord(entry);
         await _csvWriter.NextRecordAsync();
+
+        if (!HasWrittenEntries)
+        {
+            HasWrittenEntries = true;
+        }
     }
 
     public void Dispose()

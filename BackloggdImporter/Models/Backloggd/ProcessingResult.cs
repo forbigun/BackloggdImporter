@@ -28,5 +28,10 @@ internal enum ProcessingResult
     /// <summary>
     /// Log already exists.
     /// </summary>
-    AlreadyExists
+    AlreadyExists,
+
+    /// <summary>
+    /// Game log could not be created due to insufficient data
+    /// </summary>
+    InsufficientData
 }
