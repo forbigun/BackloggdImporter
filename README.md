@@ -16,7 +16,7 @@ A console utility for importing game logs into [Backloggd](https://backloggd.com
 - For each game entry:
     - Searches for the game on Backloggd (using `ReleaseYear` if provided)
     - If the game is found and a log does not already exist, creates a new log with the specified parameters (rating, platform, status, review, etc.)
-    - If the game is not found, a log already exists, or the data is invalid (e.g., rating out of range), the entry is written to `failed_games.csv` for later review or retry
+    - If the game is not found or the data is invalid (e.g., rating out of range), the entry is written to `failed_games.csv` for later review or retry
 - At the end, generates a `failed_games.csv` file containing all entries that could not be imported
 
 You can use `failed_games.csv` to retry only the failed imports later.
