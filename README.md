@@ -1,74 +1,109 @@
 ﻿# BackloggdImporter
 
-A console utility for importing game logs into
-the [Backloggd](https://backloggd.com/) platform from a CSV file.
+A console utility for importing game logs into [Backloggd](https://backloggd.com/) from a CSV file.
 
 ## Features
 
 - Reads game data from a CSV file
 - Automatically searches for games on Backloggd
 - Creates logs for each game, including rating, platform, status, and review
+- Built-in retry mechanism for handling rate limits and authentication issues
 
-## Build
+## How it works
 
--
+- Loads user settings from `config.json`
+- Reads a list of games from `backloggd_import.csv`
+- For each game entry:
+    - Searches for the game on Backloggd (using `ReleaseYear` if provided)
+    - If the game is found and a log does not already exist, creates a new log with the specified parameters (rating, platform, status, review, etc.)
+    - If the game is not found, a log already exists, or the data is invalid (e.g., rating out of range), the entry is written to `failed_games.csv` for later review or retry
+- At the end, generates a `failed_games.csv` file containing all entries that could not be imported
 
-Requires [.NET 8.0 SDK](https://dotnet.microsoft.com/en-us/download/dotnet/8.0)
-
-To build and run the project:
-
-```sh
- dotnet build
- dotnet run --project BackloggdImporter
-```
-
-## Dependencies
-
-- [CsvHelper](https://joshclose.github.io/CsvHelper/) — CSV parsing library
-
-Dependencies are automatically restored when building the project.
+You can use `failed_games.csv` to retry only the failed imports later.
 
 ## Usage
 
-### 1. Prepare your CSV file
+### Running the project
 
-The CSV file should be named `backloggd_import.csv` and placed in the same
-directory as the executable.
+You can either build the project from source or download a pre-built release.
+
+#### Option 1: Using a pre-built release
+
+The release is self-contained and does not require .NET Runtime to be installed on your machine.
+
+1. Download the release archive from the [GitHub Releases](https://github.com/your-username/your-repo/releases)
+2. Extract the archive to a convenient folder
+3. Navigate to the extracted folder
+4. Complete the [Create configuration files](#create-configuration-files) step in the folder with the executable file
+5. Run the program
+
+#### Option 2: Building from source
+
+**Requires:** [.NET 9.0 SDK](https://dotnet.microsoft.com/en-us/download/dotnet/9.0)
+
+1. Build the project:
+```sh
+dotnet build
+```
+
+2. Complete the [Create configuration files](#create-configuration-files) step in the root directory (same level as `README.md`)
+3. Run the project:
+```sh
+dotnet run --project BackloggdImporter
+```
+
+## Create configuration files
+
+Before running the program, create these files in the root directory (or next to the executable if using a release build):
+
+### CSV File Format
+
+Create a file named `backloggd_import.csv` with the following structure:
 
 **Required columns:**
+- `Name` — game title (**required**; string)
 
-- `Name` — Game title (string)
-- `Rating` — Game rating from 1-10 (integer)
-- `Platform` — Gaming platform (string, see supported platforms below)
-- `Status` — Game status (string, see supported statuses below; if left empty,
-  the log will be created with status `completed` by default)
-- `Review` — Optional review text (string, can be empty)
+**Optional columns:**
+- `Rating` — rating from 1 to 10 (integer)
+- `Platform` — platform (string, [see supported platforms](#supported-platforms))
+- `Status` — status (string, [see supported statuses](#supported-game-statuses))
+- `Review` — review (string, can be empty)
+- `ReleaseYear` — release year (integer)
 
-**Example CSV:**
+> **Important notes:**
+> - If `Status` is empty or missing, the default status `completed` will be used
+> - Reviews will be visible to all users on the Backloggd website
+> - The utility takes the first search result; specify `ReleaseYear` for games with common names (remasters, remakes, etc.)
 
-| Name                                 | Rating | Platform      | Status    | Review                                         |
-|--------------------------------------|--------|---------------|-----------|------------------------------------------------|
-| The Legend of Zelda: Ocarina of Time | 10     | Nintendo 64   | completed | Absolute masterpiece of game design!           |
-| Hades                                | 9      | PC            | completed | Amazing roguelike with incredible storytelling |
-| Cyberpunk 2077                       | 7      | PlayStation 5 | playing   | Getting better with updates                    |
+**Minimal example:**
 
-### 2. Get your Backloggd session data
+| Name                   |
+|------------------------|
+| The Legend of Zelda    |
+| Hades                  |
+| Cyberpunk 2077         |
 
-You need to extract session data from your browser:
+**Full example:**
+
+| Name                                 | Rating | Platform      | Status    | Review                                         | ReleaseYear |
+|--------------------------------------|--------|---------------|-----------|------------------------------------------------|-------------|
+| The Legend of Zelda: Ocarina of Time | 10     | Nintendo 64   | completed | Absolute masterpiece of game design!           | 1998        |
+| Hades                                | 9      | PC            | completed | Amazing roguelike with incredible storytelling | 2020        |
+| Cyberpunk 2077                       | 7      | PlayStation 5 | playing   | Getting better with updates                    | 2020        |
+| Untitled Goose Game                  |        |               |           |                                                |             |
+
+### Get your Backloggd session data
 
 1. Log in to [Backloggd](https://backloggd.com/)
 2. Open Developer Tools (F12)
 3. Go to the Network tab
-4. Perform any action on the site (like adding a game to backlog)
+4. Perform any action on the site (e.g., add a game to your backlog)
 5. Find the request and extract:
-    - `_backloggd_session` cookie value
-    - `X-Csrf-token` header value
-    - Your user ID from the request URL
+   - the `_backloggd_session` cookie value
+   - the `X-Csrf-token` header value
+   - your user ID from the request URL
 
-### 3. Create config file
-
-Create a `config.json` file with your session data:
-
+Create `config.json` with this format:
 ```json
 {
   "SessionCookie": "your_session_cookie_value",
@@ -77,36 +112,18 @@ Create a `config.json` file with your session data:
 }
 ```
 
-### 4. Build and run
-
-```sh
-dotnet build
-dotnet run --project BackloggdImporter
-```
-
-### 5. Output
-
-The utility will:
-
-- Process each game entry from the CSV
-- Display colored status messages for each game
-- Show a summary of failed imports at the end
-- Wait 10 seconds between requests to avoid rate limiting
-
 ## Supported Platforms
+
+> Note: The list of supported platforms is compiled from various open sources. Not all platforms have been tested in practice, so some mappings may not work as expected.
 
 The utility supports automatic platform mapping for:
 
 - **PC/Windows:** PC, Windows
-- **PlayStation:** PlayStation, PS1, PlayStation 2, PS2, PlayStation 3, PS3,
-  PlayStation 4, PS4, PlayStation 5, PS5, PSP, PlayStation Vita, Vita
+- **PlayStation:** PlayStation, PS1, PlayStation 2, PS2, PlayStation 3, PS3, PlayStation 4, PS4, PlayStation 5, PS5, PSP, PlayStation Vita, Vita
 - **Xbox:** Xbox, Xbox 360, Xbox One, Xbox Series X, Xbox Series S, Xbox Series
-- **Nintendo:** Nintendo 64, N64, Wii, Wii U, Nintendo DS, DS, Nintendo 3DS,
-  3DS, GameCube, Game Boy, Game Boy Color, Game Boy Advance, GBA, Nintendo
-  Switch, Switch, NES, SNES
+- **Nintendo:** Nintendo 64, N64, Wii, Wii U, Nintendo DS, DS, Nintendo 3DS, 3DS, GameCube, Game Boy, Game Boy Color, Game Boy Advance, GBA, Nintendo Switch, Switch, NES, SNES
 - **Mobile:** Android, iOS, iPhone, iPad
-- **Other:** Linux, Mac, SteamOS, Steam Deck, Dreamcast, Sega Genesis, Sega
-  Saturn, Arcade, Commodore 64, Amstrad CPC, Atari 2600, Amiga, Stadia
+- **Other:** Linux, Mac, SteamOS, Steam Deck, Dreamcast, Sega Genesis, Sega Saturn, Arcade, Commodore 64, Amstrad CPC, Atari 2600, Amiga, Stadia
 
 ## Supported Game Statuses
 
@@ -119,24 +136,7 @@ The utility supports automatic platform mapping for:
 - `abandoned` — Game is abandoned (do not plan to return)
 - `retired` — Game is retired (finished all interaction)
 
-## Troubleshooting
+## Dependencies
 
-**"File not found" errors:**
-
-- Ensure `backloggd_import.csv` and `config.json` are in the same directory as
-  the executable
-
-**"Not found" for many games:**
-
-- Check that game names in CSV match Backloggd's database exactly
-- Try shorter or alternative names for games
-
-**Authentication errors:**
-
-- Verify your session cookie and CSRF token are current
-- Re-extract session data if you logged out or session expired
-
-**Rate limiting:**
-
-- The utility includes a 10-second delay between requests
-- If you get rate limited, wait and try again later
+- [CsvHelper](https://joshclose.github.io/CsvHelper/)
+- [Polly](https://github.com/App-vNext/Polly)
