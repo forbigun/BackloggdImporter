@@ -482,3 +482,6 @@ $RECYCLE.BIN/
 
 # Vim temporary swap files
 *.swp
+/backloggd_import.csv
+/config.json
+/failed_games.csv

@@ -14,13 +14,14 @@ const string csvFileName = FileNames.Csv;
 if (!File.Exists(csvFileName))
 {
     ConsolePrinter.WriteError($"File {csvFileName} not found. Please provide a valid CSV file with game entries.");
-
+    Console.ReadKey();
     return;
 }
 
 if (!File.Exists(configFileName))
 {
     ConsolePrinter.WriteError($"Settings file {configFileName} not found. Please create it with your Backloggd settings.");
+    Console.ReadKey();
     return;
 }
 

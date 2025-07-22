@@ -40,9 +40,9 @@ internal class GameProcessingService(Config config) : IDisposable
         }
 
         var request = GameLogRequest.FromCsvEntry(gameId.Value, entry);
-        var success = await _backlogService.CreateGameLogAsync(request);
+        var isSuccess = await _backlogService.CreateGameLogAsync(request);
 
-        return success
+        return isSuccess
                    ? ProcessingResult.Success
                    : ProcessingResult.Failed;
     }
