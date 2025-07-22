@@ -29,13 +29,15 @@ You can either build the project from source or download a pre-built release.
 
 #### Option 1: Using a pre-built release
 
-The release is self-contained and does not require .NET Runtime to be installed on your machine.
-
 1. Download the release archive from the [GitHub Releases](https://github.com/forbigun/BackloggdImporter/releases)
 2. Extract the archive to a convenient folder
 3. Navigate to the extracted folder
 4. Complete the [Create configuration files](#create-configuration-files) step in the folder with the executable file
 5. Run the program
+
+**Available release types:**
+- **Self-contained versions** - No .NET Runtime required, larger file size
+- **Framework-dependent versions** - Require [.NET 9.0 Runtime](https://dotnet.microsoft.com/en-us/download/dotnet/9.0) to be installed, smaller file size
 
 #### Option 2: Building from source
 
