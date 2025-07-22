@@ -31,7 +31,7 @@ You can either build the project from source or download a pre-built release.
 
 The release is self-contained and does not require .NET Runtime to be installed on your machine.
 
-1. Download the release archive from the [GitHub Releases](https://github.com/your-username/your-repo/releases)
+1. Download the release archive from the [GitHub Releases](https://github.com/forbigun/BackloggdImporter/releases)
 2. Extract the archive to a convenient folder
 3. Navigate to the extracted folder
 4. Complete the [Create configuration files](#create-configuration-files) step in the folder with the executable file
