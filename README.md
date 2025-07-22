@@ -89,7 +89,7 @@ Create a file named `backloggd_import.csv` with the following structure:
 
 | Name                                 | Rating | Platform      | Status    | Review                                         | ReleaseYear |
 |--------------------------------------|--------|---------------|-----------|------------------------------------------------|-------------|
-| The Legend of Zelda: Ocarina of Time | 10     | Nintendo 64   | completed | Absolute masterpiece of game design!           | 1998        |
+| The Legend of Zelda: Ocarina of Time | 10     | Nintendo 64   | completed |                                                | 1998        |
 | Hades                                | 9      | PC            | completed | Amazing roguelike with incredible storytelling | 2020        |
 | Cyberpunk 2077                       | 7      | PlayStation 5 | playing   | Getting better with updates                    | 2020        |
 | Untitled Goose Game                  |        |               |           |                                                |             |
